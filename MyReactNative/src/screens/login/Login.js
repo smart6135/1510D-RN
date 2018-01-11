@@ -4,10 +4,51 @@ import {
     StyleSheet,
     Text,
     View,
-    TextInput
+    TextInput,
+    TouchableHighlight,
+    TouchableOpacity
 } from 'react-native';
 
+import Toast from '../../utils/Toast';
+
 export default class Login extends Component{
+
+    constructor(props){
+        super(props)
+        this.state={
+            phone:"",
+            password:""
+        }
+    }
+
+
+    login(){
+        console.log("================================")
+        var phone = this.state.phone;
+        var password = this.state.password;
+        var url = "http://192.168.234.1:8080/user/login?phone="+phone+"&password="+password;
+        fetch(url, {
+            method: 'GET'
+        }).then((response) => response.json()) //把response转为json
+            .then((responseData) => { // 上面的转好的json
+              console.log(responseData);
+              let {code} = responseData;
+                console.log(code);
+                if(code==20000){
+                    Toast.info("登录成功")
+                    //把后台返回的用户信息，含userid,放到缓存里面
+                    let {data} = responseData;
+                    let {id} = data;
+
+                    console.log(data);
+                    this.props.navigation.goBack();
+                }
+            }).catch(function(err) {
+            //错误处理
+            console.log(err)
+
+        });
+    }
 
     render(){
         return(
@@ -19,16 +60,19 @@ export default class Login extends Component{
                     </Text>
                 </View>
                 <View style={styles.inputview}>
-                    <TextInput style = {styles.textinput} placeholder='手机号' underlinecolorandroid='transparent'/>
+                    <TextInput style = {styles.textinput} placeholder='手机号' underlinecolorandroid='transparent'
+                               onChangeText={(text) => this.setState({phone:text})}/>
                     <View style={styles.dividerview}><Text style={styles.divider}></Text></View>
-                    <TextInput style = {styles.textinput} placeholder='密码' secureTextEntry ={true} underlinecolorandroid='transparent'/>
+                    <TextInput style = {styles.textinput} placeholder='密码' secureTextEntry ={true} underlinecolorandroid='transparent'
+                               onChangeText={(text) => this.setState({password:text})}/>
                 </View>
 
                 <View style={styles.buttomview}>
+                    <TouchableOpacity onPress={()=>this.login()}>
                     <View style={styles.buttonview} >
                         <Text style={styles.logintext}>登 录</Text>
                     </View>
-
+                    </TouchableOpacity>
                     <View style={styles.emptyview}></View>
 
                     <View style={styles.bottombtnsview}>
